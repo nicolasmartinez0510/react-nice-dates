@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { bool, func, instanceOf, object, objectOf, string } from 'prop-types'
 import { startOfMonth } from 'date-fns'
 import { isSelectable, mergeModifiers } from './utils'
@@ -6,6 +6,8 @@ import useControllableState from './useControllableState'
 import CalendarNavigation from './CalendarNavigation'
 import CalendarWeekHeader from './CalendarWeekHeader'
 import CalendarGrid from './CalendarGrid'
+import Popover from './Popover'
+import MonthPicker from './MonthPicker'
 
 export default function Calendar({
   locale,
@@ -18,9 +20,12 @@ export default function Calendar({
   onDayHover,
   onDayClick,
   weekdayFormat,
-  touchDragEnabled
+  touchDragEnabled,
+  monthModifiers,
+  monthModifiersClassNames
 }) {
   const [month, setMonth] = useControllableState(receivedMonth, onMonthChange, startOfMonth(new Date()))
+  const [show, setShow] = useState(true)
 
   const modifiers = mergeModifiers(
     { disabled: date => !isSelectable(date, { minimumDate, maximumDate }) },
@@ -28,28 +33,48 @@ export default function Calendar({
   )
 
   return (
-    <div>
+    <>
       <CalendarNavigation
         locale={locale}
         minimumDate={minimumDate}
         maximumDate={maximumDate}
         month={month}
         onMonthChange={setMonth}
+        showMonthPicker={() => setShow(!show)}
+        show={show}
       />
 
-      <CalendarWeekHeader locale={locale} weekdayFormat={weekdayFormat}/>
+      <Popover open={!show}>
+        <MonthPicker
+          locale={locale}
+          minimumDate={minimumDate}
+          maximumDate={maximumDate}
+          modifiers={monthModifiers}
+          modifiersClassNames={monthModifiersClassNames}
+          actualDate={month}
+          onClick={onMonthChange}
+          touchDragEnabled={touchDragEnabled}
+          onDayHover={onDayHover}
+          showGrid={() => setShow(!show)}
+        />
+      </Popover>
 
-      <CalendarGrid
-        locale={locale}
-        modifiers={modifiers}
-        modifiersClassNames={modifiersClassNames}
-        month={month}
-        onMonthChange={setMonth}
-        onDayHover={onDayHover}
-        onDayClick={onDayClick}
-        touchDragEnabled={touchDragEnabled}
-      />
-    </div>
+      {show &&
+        <>
+          <CalendarWeekHeader locale={locale} weekdayFormat={weekdayFormat} />
+          <CalendarGrid
+            locale={locale}
+            modifiers={modifiers}
+            modifiersClassNames={modifiersClassNames}
+            month={month}
+            onMonthChange={setMonth}
+            onDayHover={onDayHover}
+            onDayClick={onDayClick}
+            touchDragEnabled={touchDragEnabled}
+          />
+        </>
+      }
+    </>
   )
 }
 
@@ -64,5 +89,7 @@ Calendar.propTypes = {
   onDayHover: func,
   onDayClick: func,
   weekdayFormat: string,
-  touchDragEnabled: bool
+  touchDragEnabled: bool,
+  monthModifiers: objectOf(func),
+  monthModifiersClassNames: objectOf(string)
 }
