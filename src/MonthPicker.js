@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import { bool, instanceOf, func, number, object, objectOf, string } from 'prop-types'
-import { lightFormat, eachMonthOfInterval, getYear } from 'date-fns'
+import { lightFormat, eachMonthOfInterval } from 'date-fns'
 import CalendarMonth from './CalendarMonth'
-import useGrid from './useGrid'
-import getMonth from 'date-fns/getMonth'
 import classNames from 'classnames'
 import { ORIGIN_BOTTOM, ORIGIN_TOP } from './constants'
+import useGrid from './useGridForMonthPicker'
 
 const computeModifiers = (modifiers, date) => {
   const computedModifiers = {}
@@ -28,14 +27,14 @@ export default function MonthPicker({
   touchDragEnabled,
   showGrid
 }) {
-  const grid = useGrid({ locale, month: getMonth(actualDate), onMonthChange: onClick, transitionDuration, touchDragEnabled })
-  const { cellHeight, offset, containerElementRef, isWide, origin, transition } = grid
+  const grid = useGrid({ locale, date: actualDate, onMonthChange: onClick, transitionDuration, touchDragEnabled })
+  const { startDate, endDate, cellHeight, offset, containerElementRef, isWide, origin, transition } = grid
   const [months, setMonths] = useState([])
 
   useEffect(() => {
     const allMonths = eachMonthOfInterval({
-      start: new Date(getYear(actualDate), 0, 1),
-      end: new Date(getYear(actualDate), 11, 1)
+      start: startDate,
+      end: endDate
     }).map(date => {
       return (
         <CalendarMonth
@@ -57,11 +56,11 @@ export default function MonthPicker({
     })
 
     setMonths(allMonths)
-  }, [actualDate, cellHeight, locale, modifiers, modifiersClassNames, onClick, onDayHover, showGrid, isWide])
+  }, [actualDate, cellHeight, locale, modifiers, modifiersClassNames, onClick, onDayHover, showGrid, isWide, startDate, endDate])
 
   return (
     <>
-      <div className='nice-dates-grid' style={{ height: cellHeight * 6 }}>
+      <div className='nice-dates-grid' style={{ height: cellHeight * 4 }}>
         <div
           className={classNames('nice-dates-grid_container', {
             '-moving': offset,
