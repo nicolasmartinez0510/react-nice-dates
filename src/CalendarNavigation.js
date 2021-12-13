@@ -1,7 +1,7 @@
 import React from 'react'
 import { bool, func, instanceOf, object } from 'prop-types'
 import classNames from 'classnames'
-import { startOfMonth, format, isSameMonth, subMonths, addMonths } from 'date-fns'
+import { startOfMonth, format, isSameMonth, subMonths, addMonths, isLeapYear } from 'date-fns'
 
 export default function CalendarNavigation({ locale, month, minimumDate, maximumDate, onMonthChange, showMonthPicker, show }) {
   const handlePrevious = event => {
@@ -29,6 +29,7 @@ export default function CalendarNavigation({ locale, month, minimumDate, maximum
           ? format(month, 'LLLL yyyy', { locale })
           : format(month, 'yyyy', { locale })
         }
+        { show && <span className="nice-dates-navigation_current_leap-year">{ isLeapYear(month) ? ' (Leap Year) ' : '' }</span> }
       </span>
 
       <a

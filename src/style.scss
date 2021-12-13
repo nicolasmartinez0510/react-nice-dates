@@ -26,6 +26,10 @@ $nice-dates-cell-width: calc(100% / 7);
       &:hover {
         font-weight: bolder;
       }
+      &_leap-year {
+        font-style: italic;
+        font-size: $nice-dates-font-size-small;
+      }
     }
 
     &_previous, &_next {
